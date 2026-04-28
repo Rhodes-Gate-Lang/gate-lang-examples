@@ -1,0 +1,49 @@
+import "primitives.gate"
+import "arith.gate"
+
+comp ALU8(a:8, b:8, opcode:3, carry_in:1) {
+    add_result:8, add_carry:1, add_overflow:1 = Add8(a, b);
+    sub_result:8, sub_carry:1, sub_overflow:1 = Sub8(a, b);
+    inc_result:8, inc_carry:1, inc_overflow:1 = Inc8(a);
+    dec_result:8, dec_carry:1, dec_overflow:1 = Dec8(a);
+    neg_result:8, neg_carry:1, neg_overflow:1 = Neg8(a);
+    adc_result:8, adc_carry:1, adc_overflow:1 = Adc8(a, b, carry_in);
+    sbc_result:8, sbc_carry:1, sbc_overflow:1 = Sbc8(a, b, carry_in);
+
+    pass_result:8 = Mux8(a, a, 0b0);
+    pass_carry:1 = 0b0;
+    pass_overflow:1 = 0b0;
+
+    op0:1 = opcode[0:0];
+    op1:1 = opcode[1:1];
+    op2:1 = opcode[2:2];
+
+    m0:8 = Mux8(add_result, sub_result, op2);
+    m1:8 = Mux8(inc_result, dec_result, op2);
+    m2:8 = Mux8(neg_result, adc_result, op2);
+    m3:8 = Mux8(sbc_result, pass_result, op2);
+    n0:8 = Mux8(m0, m1, op1);
+    n1:8 = Mux8(m2, m3, op1);
+    result:8 = Mux8(n0, n1, op0);
+
+    c0:1 = Mux1(add_carry, sub_carry, op2);
+    c1:1 = Mux1(inc_carry, dec_carry, op2);
+    c2:1 = Mux1(neg_carry, adc_carry, op2);
+    c3:1 = Mux1(sbc_carry, pass_carry, op2);
+    c4:1 = Mux1(c0, c1, op1);
+    c5:1 = Mux1(c2, c3, op1);
+    carry:1 = Mux1(c4, c5, op0);
+
+    v0:1 = Mux1(add_overflow, sub_overflow, op2);
+    v1:1 = Mux1(inc_overflow, dec_overflow, op2);
+    v2:1 = Mux1(neg_overflow, adc_overflow, op2);
+    v3:1 = Mux1(sbc_overflow, pass_overflow, op2);
+    v4:1 = Mux1(v0, v1, op1);
+    v5:1 = Mux1(v2, v3, op1);
+    overflow:1 = Mux1(v4, v5, op0);
+
+    zero:1 = IsZero8(result);
+    negative:1 = result[0:0];
+
+    return result, carry, zero, negative, overflow;
+}

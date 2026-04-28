@@ -1,0 +1,84 @@
+import "primitives.gate"
+import "adders.gate"
+
+comp Add8(a:8, b:8) {
+    sum:8, carry:1 = RCA8(a, b, 0b0);
+    a_sign:1 = a[0:0];
+    b_sign:1 = b[0:0];
+    r_sign:1 = sum[0:0];
+    signs_diff:1 = a_sign XOR b_sign;
+    signs_same:1 = NOT signs_diff;
+    result_diff:1 = a_sign XOR r_sign;
+    overflow:1 = signs_same AND result_diff;
+    return sum, carry, overflow;
+}
+
+comp Adc8(a:8, b:8, carry_in:1) {
+    sum:8, carry:1 = RCA8(a, b, carry_in);
+    a_sign:1 = a[0:0];
+    b_sign:1 = b[0:0];
+    r_sign:1 = sum[0:0];
+    signs_diff:1 = a_sign XOR b_sign;
+    signs_same:1 = NOT signs_diff;
+    result_diff:1 = a_sign XOR r_sign;
+    overflow:1 = signs_same AND result_diff;
+    return sum, carry, overflow;
+}
+
+comp Sub8(a:8, b:8) {
+    not_b:8 = Not8(b);
+    sum:8, carry:1 = RCA8(a, not_b, 0b1);
+    a_sign:1 = a[0:0];
+    b_sign:1 = b[0:0];
+    r_sign:1 = sum[0:0];
+    signs_diff:1 = a_sign XOR b_sign;
+    result_diff:1 = a_sign XOR r_sign;
+    overflow:1 = signs_diff AND result_diff;
+    return sum, carry, overflow;
+}
+
+comp Sbc8(a:8, b:8, carry_in:1) {
+    not_b:8 = Not8(b);
+    sum:8, carry:1 = RCA8(a, not_b, carry_in);
+    a_sign:1 = a[0:0];
+    b_sign:1 = b[0:0];
+    r_sign:1 = sum[0:0];
+    signs_diff:1 = a_sign XOR b_sign;
+    result_diff:1 = a_sign XOR r_sign;
+    overflow:1 = signs_diff AND result_diff;
+    return sum, carry, overflow;
+}
+
+comp Inc8(a:8) {
+    low_zeros:7 = a[0:6] XOR a[0:6];
+    one:8 = {low_zeros, 0b1};
+    sum:8, carry:1 = RCA8(a, one, 0b0);
+    a_sign:1 = a[0:0];
+    r_sign:1 = sum[0:0];
+    sign_flip:1 = a_sign XOR r_sign;
+    not_a_sign:1 = NOT a_sign;
+    overflow:1 = not_a_sign AND sign_flip;
+    return sum, carry, overflow;
+}
+
+comp Dec8(a:8) {
+    zeros:8 = a XOR a;
+    ones:8 = Not8(zeros);
+    sum:8, carry:1 = RCA8(a, ones, 0b0);
+    a_sign:1 = a[0:0];
+    r_sign:1 = sum[0:0];
+    sign_flip:1 = a_sign XOR r_sign;
+    overflow:1 = a_sign AND sign_flip;
+    return sum, carry, overflow;
+}
+
+comp Neg8(a:8) {
+    not_a:8 = Not8(a);
+    low_zeros:7 = a[0:6] XOR a[0:6];
+    one:8 = {low_zeros, 0b1};
+    sum:8, carry:1 = RCA8(not_a, one, 0b0);
+    a_sign:1 = a[0:0];
+    r_sign:1 = sum[0:0];
+    overflow:1 = a_sign AND r_sign;
+    return sum, carry, overflow;
+}

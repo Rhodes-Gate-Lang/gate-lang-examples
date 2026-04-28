@@ -1,0 +1,45 @@
+comp Mux1(a:1, b:1, sel:1) {
+    not_sel:1 = NOT sel;
+    a_path:1 = a AND not_sel;
+    b_path:1 = b AND sel;
+    out:1 = a_path OR b_path;
+    return out;
+}
+
+comp Mux8(a:8, b:8, sel:1) {
+    o0:1 = Mux1(a[0:0], b[0:0], sel);
+    o1:1 = Mux1(a[1:1], b[1:1], sel);
+    o2:1 = Mux1(a[2:2], b[2:2], sel);
+    o3:1 = Mux1(a[3:3], b[3:3], sel);
+    o4:1 = Mux1(a[4:4], b[4:4], sel);
+    o5:1 = Mux1(a[5:5], b[5:5], sel);
+    o6:1 = Mux1(a[6:6], b[6:6], sel);
+    o7:1 = Mux1(a[7:7], b[7:7], sel);
+    out:8 = {o0, o1, o2, o3, o4, o5, o6, o7};
+    return out;
+}
+
+comp Not8(x:8) {
+    n0:1 = NOT x[0:0];
+    n1:1 = NOT x[1:1];
+    n2:1 = NOT x[2:2];
+    n3:1 = NOT x[3:3];
+    n4:1 = NOT x[4:4];
+    n5:1 = NOT x[5:5];
+    n6:1 = NOT x[6:6];
+    n7:1 = NOT x[7:7];
+    out:8 = {n0, n1, n2, n3, n4, n5, n6, n7};
+    return out;
+}
+
+comp IsZero8(x:8) {
+    any01:1 = x[0:0] OR x[1:1];
+    any23:1 = x[2:2] OR x[3:3];
+    any45:1 = x[4:4] OR x[5:5];
+    any67:1 = x[6:6] OR x[7:7];
+    any03:1 = any01 OR any23;
+    any47:1 = any45 OR any67;
+    any:1 = any03 OR any47;
+    is_zero:1 = NOT any;
+    return is_zero;
+}

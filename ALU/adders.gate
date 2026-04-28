@@ -1,0 +1,27 @@
+comp HalfAdder(a:1, b:1) {
+    sum:1 = a XOR b;
+    carry:1 = a AND b;
+    return sum, carry;
+}
+
+comp FullAdder(a:1, b:1, cin:1) {
+    axb:1 = a XOR b;
+    sum:1 = axb XOR cin;
+    carry_ab:1 = a AND b;
+    carry_cin:1 = cin AND axb;
+    carry:1 = carry_ab OR carry_cin;
+    return sum, carry;
+}
+
+comp RCA8(a:8, b:8, cin:1) {
+    s7:1, c1:1 = FullAdder(a[7:7], b[7:7], cin);
+    s6:1, c2:1 = FullAdder(a[6:6], b[6:6], c1);
+    s5:1, c3:1 = FullAdder(a[5:5], b[5:5], c2);
+    s4:1, c4:1 = FullAdder(a[4:4], b[4:4], c3);
+    s3:1, c5:1 = FullAdder(a[3:3], b[3:3], c4);
+    s2:1, c6:1 = FullAdder(a[2:2], b[2:2], c5);
+    s1:1, c7:1 = FullAdder(a[1:1], b[1:1], c6);
+    s0:1, cout:1 = FullAdder(a[0:0], b[0:0], c7);
+    sum:8 = {s0, s1, s2, s3, s4, s5, s6, s7};
+    return sum, cout;
+}
